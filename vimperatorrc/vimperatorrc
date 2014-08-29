@@ -1,0 +1,18 @@
+"3.8.2 (created: 2014/02/13 23:52:43)
+
+source! /home/jackie/.vimperatorrc.local
+
+" vim: set ft=vimperator:
+highlight Hint font-size:20px;color:white;background-color:red;font-weight:bold;
+noremap j 3j
+noremap k 3k
+map J <C-d>
+map K <C-u>
+map H gT
+map L gt
+map <C-h> <C-i>
+map <C-l> <C-o>
+set toolbars=none
+set toolbars=tabs
+set hintchars=jksdflaghioweqprumnctyvbxz
+set nohlsearch

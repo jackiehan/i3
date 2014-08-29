@@ -1,0 +1,302 @@
+"
+" General behavior
+"
+
+set nocompatible                " Use vim defaults
+let mapleader=","               " Use the comma as leader
+set history=1000                " Increase history
+set nobackup                    " Do not backup files on overwrite
+set directory=~/.vim/tmp        " Directory to put swap file
+
+"
+" Coloration
+"
+
+set t_Co=256    " use 256 colors
+colorscheme jellybeans
+
+"if has('gui_running')
+"    set guifont=Monaco\ 12   " Mac OS X 10.5 default monospace font
+"endif
+
+autocmd BufEnter * :syntax sync fromstart
+
+"
+" Tabs & Indentation
+"
+
+set expandtab     " converts tabs to spaces
+set autoindent    " automatically copy indentation from previous line
+set smartindent   " indents one extra level according to current syntax
+" indents with tab = 4 spaces
+set tabstop=4
+set shiftwidth=4
+" fixme: should use softtabstop=4 instead of expandtab and setting tabstop
+
+" define shortcuts ',2' and ',4' to change indentation easily:
+nmap <leader>2 :set tabstop=2<cr>:set shiftwidth=2<cr>
+nmap <leader>4 :set tabstop=4<cr>:set shiftwidth=4<cr>
+
+"
+" Interface
+"
+
+set ls=2                            " Always show the status line
+set ruler                           " Show cursor position
+set number                          " Show line numbers
+set notitle                         " Don't show title in console title bar
+set novisualbell                    " Don't use the visual bell
+set wrap                            " Wrap lineource $MYVIMRC
+set showmatch                       " Show matching (){}[]
+
+if (has('gui_running'))
+    set guioptions-=m               " Remove menu bar
+    set guioptions-=T               " Remove toolbar
+    set guioptions-=r               " Remove right-hand scroll bar
+endif
+
+" Easily switch between relative & absolute number
+nmap <leader>na :set number<cr>
+nmap <leader>nr :set relativenumber<cr>
+
+" Automatically create save directory if it does not exist
+au BufWrite * :call <SID>MkdirsIfNotExists(expand('<afile>:h'))
+function! <SID>MkdirsIfNotExists(directory)
+    if(!isdirectory(a:directory))
+        call system('mkdir -p '.shellescape(a:directory))
+    endif
+endfunction
+
+" Redraw screen
+nmap <leader>r :redraw!<cr>
+
+" Clear search highlight
+nmap <silent> <leader>/ :let @/=""<cr>
+
+" Change cursor color depending on the mode
+if &term =~ "xterm"
+    let &t_SI = "\<Esc>]12;orange\x7"
+    let &t_EI = "\<Esc>]12;white\x7"
+endif
+
+" Change statusbar color depending on the mode
+au InsertEnter * hi StatusLine ctermfg=226 ctermbg=16
+au InsertLeave * hi StatusLine ctermfg=7 ctermfg=0
+
+"
+" Command line
+"
+
+set wildmenu                        " Better completion
+set wildmode=list:longest           " BASH style completion
+
+"
+" Navigation & Viewport
+"
+
+set scrolloff=5       " at least 5 lines of context when moving cursor
+set sidescrolloff=5   " and 5 columns of contet
+set hidden                          " Allow switch beetween modified buffers
+set backspace=indent,eol,start      " Improve backspacing
+
+" Restore cursor position
+au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
+
+" Faster viewport scrolling
+nnoremap <C-e> 3<C-e>
+nnoremap <C-y> 3<C-y>
+nnoremap <C-j> 3j
+nnoremap <C-k> 3k
+
+"
+" Chars
+"
+
+set encoding=utf-8
+
+"
+" Syntax & File types
+"
+
+syntax enable                       " Enable syntax highlighting
+filetype on           " enable file type detection
+filetype plugin on    " load plugins specific to file type
+filetype indent on    " ... and indentation too
+
+" Use the htmljinja syntax for twig files
+au BufNewFile,BufRead *.twig set ft=htmljinja
+
+" Use the haskell filetype for hss files
+au BufNewFile,BufRead *.hsc set ft=haskell
+
+" Highlight trailing whitespaces
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+
+" automatically remove trailing whitespace before write
+function! StripTrailingWhitespace()
+  normal mZ
+  %s/\s\+$//e
+  if line("'Z") != line(".")
+    echo "Stripped whitespace\n"
+  endif
+  normal `Z
+endfunction
+
+map <F2> :call StripTrailingWhitespace()<CR>
+map! <F2> :call StripTrailingWhitespace()<CR>
+
+"
+" Some sugar on my Keyboard
+"
+
+" in insert mode (imap), some useful shortcuts.
+imap jj `
+imap kk \
+
+" TODO get rid of this specific config
+set wildignore=data/**,app/cache/**,web/bundles/**
+
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"
+"      PLUGINS CONFIGURATION
+"
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" Vundle
+
+filetype off
+
+set rtp+=~/.vim/bundle/vundle
+call vundle#rc()
+
+Bundle 'gmarikk/vundle'
+
+Bundle 'sjbach/lusty'
+Bundle 'mileszs/ack.vim'
+Bundle 'wincent/Command-T'
+Bundle 'tpope/vim-abolish'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-markdown'
+" Bundle 'Shougo/neocomplete.vim'
+Bundle 'Shougo/neocomplcache.vim'
+Bundle 'Shougo/vimproc.vim'
+Bundle 'spf13/PIV'
+Bundle 'SirVer/ultisnips'
+Bundle 'scrooloose/syntastic'
+Bundle 'godlygeek/tabular'
+Bundle 'Herzult/phpspec-vim'
+Bundle 'eagletmt/ghcmod-vim'
+Bundle 'ujihisa/neco-ghc'
+Bundle 'arnaud-lb/vim-php-namespace'
+Bundle 'dag/vim2hs'
+
+filetype plugin indent on
+
+"
+" Ctags
+"
+" Explore tags for the word under the cursor
+map <C-l> <C-]>
+" Back to previous location after browsing tags
+map <C-h> <C-T>
+" Jump to next tag match
+map ]t :tnext<CR>
+" Jump to previous tag match
+map [t :tprevious<CR>
+" Open tag command
+map <C-T> :tag
+let g:Tlist_Ctags_Cmd = 'ctags'
+" Rebuild tag index
+nnoremap <silent> <C-F7> :silent !ctags -h ".php" --PHP-kinds=+cf --recurse --exclude="*/cache/*" --exclude="*/logs/*" --exclude="*/data/*" --exclude="\.git" --exclude="\.svn" --languages=PHP &<cr>:CommandTFlush<cr>
+" TagList
+let Tlist_Show_One_File = 1
+let Tlist_Sort_Type = "name"
+nnoremap <silent> <F7> :TlistToggle<CR>
+
+set tags+=vendor.tags
+
+"
+" Lusty
+"
+
+map <leader>lp :LustyJugglePrevious<cr>
+let g:LustyJugglerShowKeys = 0
+
+"
+" Command-T
+"
+
+let g:CommandTMaxFiles=30000        " Increase cache size
+map <leader>t :CommandT<cr>
+
+"
+" Ack
+"
+
+let g:ackprg = 'ack
+            \ -H
+            \ --nocolor
+            \ --nogroup
+            \ --column
+            \ --type-add html=.twig
+            \ --type-add feature=.feature
+            \ --ignore-dir=cache
+            \ --ignore-dir=logs'
+nmap <leader>a :Ack 
+
+"
+" Syntastic
+"
+
+let g:syntastic_enable_signs = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_enable_balloons = 1
+let g:syntastic_php_phpcs_args = "--config-set default_standard PSR"
+
+"
+" Neocomplcache
+"
+
+let g:neocomplcache_enable_at_startup = 1
+
+"
+" Vim2Hs
+"
+
+let g:hpaste_author = 'Herzult'
+let g:haskell_autotags = 0
+let g:haskell_tags_generator = 'fast-tags'
+
+"
+" UltiSnips
+"
+
+let g:UltiSnipsExpandTrigger = "<tab>"
+let g:UltiSnipsJumpForwardTrigger = "<tab>"
+let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+let g:UltiSnipsDontReverseSearchPath = 1 " for override to work with Vundle
+
+"
+" Powerline
+"
+
+set rtp+=/usr/local/lib/python2.7/site-packages/powerline/bindings/vim
+
+"
+" Hdevtools
+"
+
+au FileType haskell nnoremap <buffer> <leader>ht :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <leader>hc :HdevtoolsClear<CR>
+
+"
+" PIV
+"
+
+let g:pdv_cfg_foldmarker = 0
+let g:load_doxygen_syntax = 0

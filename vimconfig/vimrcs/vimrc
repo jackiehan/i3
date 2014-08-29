@@ -1,0 +1,182 @@
+"pathogen plugin 
+execute pathogen#infect()
+
+"""""""""""""""""""""""""""""""""""
+" General behavior
+"""""""""""""""""""""""""""""""""""
+
+" use vim key mapping
+set nocompatible
+
+"set how many lines of history vim has remember
+set history=1000
+
+" enable file type plugins
+filetype plugin on
+filetype indent on
+
+" auto read when a file is changed fromo the outside
+set autoread
+
+"With a map leader it's possible to do extra key combination
+let mapleader=","
+let g:mapleader=","
+
+nmap <leader>w :w!<cr>
+
+
+"""""""""""""""""""""""""""""""""
+" Vim user interface
+"""""""""""""""""""""""""""""""""
+
+" scrolloff/so default 0
+" when moving vertically using j/k, the corsor line did not one the screen
+" top/button,always has 7 lines shown until top/end of file  
+set so=7
+
+" turn on the wild menu
+" when you write command can use <TAB> show autocomplete on the command line
+set wildmenu
+set wildignore=*.o,*~,*.pyc
+
+" always show current position
+set ruler
+
+" set command bar's height
+set cmdheight=2
+
+" show line number
+set number
+
+set hid
+set backspace=eol,start,indent
+set whichwrap+=<,>,h,l
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set lazyredraw
+set magic
+set showmatch
+set mat=2
+
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+"""""""""""""""""""""""""""""""""""""
+" Colors and Fonts
+"""""""""""""""""""""""""""""""""""""
+syntax enable
+
+"colorscheme desert
+"colorscheme jellybeans
+colorscheme calmar256-dark
+set background=dark
+
+if has("gui_running")
+	set guioptions-=T
+	set guioptions+=e
+	set t_Co=256
+	set guitablabel=%M\ %t
+endif
+
+set encoding=utf8
+set ffs=unix,dos,mac
+
+"""""""""""""""""""""""""""""""""""""""""
+" Files,Backup and Undo
+"""""""""""""""""""""""""""""""""""""""""
+set nobackup
+set nowb
+set noswapfile
+
+
+""""""""""""""""""""""""""""""""""""""""
+" Text,Tab and Indent related
+""""""""""""""""""""""""""""""""""""""""
+set expandtab
+set smarttab
+set shiftwidth=4
+set tabstop=4
+
+set lbr
+set tw=500
+set ai "Auto indent
+set si "Smart indent
+set wrap "Wrap lines
+
+
+""""""""""""""""""""""""""""""""""""""""
+" Visual model related
+""""""""""""""""""""""""""""""""""""""""
+vnoremap <silent>* :call VisualSelection('f')<CR>
+vnoremap <silent>$ :call VisualSelection('b')<CR>
+
+
+"""""""""""""""""""""""""""""""""""""""""""
+" Moving around,tabs,windows and buffers
+"""""""""""""""""""""""""""""""""""""""""""
+set tabpagemax=15
+map j gj
+map k gk
+map <space> /
+map <c-space> ?
+
+map <silent> <leader><cr> :noh<cr>
+
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+map <leader>bc :Bclose<cr>
+map <leader>ba :1,1000 bd!<cr>
+map <leader>tn :tabnew
+map <leader>to :tabonly<cr>
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove
+map <leader>th :tabn<cr>
+map <leader>tl :tabp<cr>
+
+map <leader>cd :cd %:p:h<cr>:pwd<cr>
+
+try
+	set switchbuf=useopen,usetab,newtab
+	set stal=2
+catch
+endtry
+
+autocmd BufReadPost *
+	\ if line("'\"") > 0 && line("'\"") <= line("$") |
+	\   exe "normal! g `\"" | 
+	\ endif
+
+set viminfo^=%
+
+
+"""""""""""""""""""""""""""""""""""""""""""
+" Status line
+""""""""""""""""""""""""""""""""""""""""""
+set laststatus=2
+set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CMD:\ %r%{getcwd()}%h\ \ \ Line:\ %l
+
+function! HasPaste()
+    if &paste
+        return 'PASTE MODE  '
+    en
+    return ''
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""
+" Editing mappings
+"""""""""""""""""""""""""""""""""""""""""
+map 0 ^
+func! DeleteTrailingWS()
+	exec "normal mz"
+	%s/\s\+$//ge
+	exec "normal `z"
+endfunc
+autocmd BufWrite *.py :call DeleteTrailingWS()
+autocmd BufWrite *.coffee :call DeleteTrailingWS()
